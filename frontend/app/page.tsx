@@ -22,35 +22,101 @@ interface ChatSession {
   updatedAt: number;
 }
 
-// Remove the default bot message. We want a blank page until the user speaks,
-// to emphasize the "quiet, spacious" feel.
 const DEFAULT_MESSAGES: Message[] = [];
+
+// Minimalist SVG icons
+const IconMenu = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+);
+
+const IconClose = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/>
+    <line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
+const IconArrow = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
+  </svg>
+);
+
+// Decorative mandala SVG for the empty state
+const MandalaDecoration = () => (
+  <svg className="empty-mandala" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" stroke="var(--gold-dim)" fill="none" strokeWidth="0.8">
+    <circle cx="100" cy="100" r="90"/>
+    <circle cx="100" cy="100" r="70"/>
+    <circle cx="100" cy="100" r="50"/>
+    <circle cx="100" cy="100" r="30"/>
+    <circle cx="100" cy="100" r="10"/>
+    {/* 8 spokes */}
+    {[0,45,90,135,180,225,270,315].map(angle => {
+      const rad = (angle * Math.PI) / 180;
+      return (
+        <line
+          key={angle}
+          x1={100 + 10 * Math.cos(rad)}
+          y1={100 + 10 * Math.sin(rad)}
+          x2={100 + 90 * Math.cos(rad)}
+          y2={100 + 90 * Math.sin(rad)}
+          strokeOpacity="0.5"
+        />
+      );
+    })}
+    {/* Petal diamonds on the 70px ring */}
+    {[0,45,90,135,180,225,270,315].map(angle => {
+      const rad = (angle * Math.PI) / 180;
+      const cx = 100 + 70 * Math.cos(rad);
+      const cy = 100 + 70 * Math.sin(rad);
+      return <circle key={`d-${angle}`} cx={cx} cy={cy} r="4" fill="var(--gold-dim)" fillOpacity="0.2"/>;
+    })}
+  </svg>
+);
 
 export default function Home() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+  // Desktop: sidebar visible by default; Mobile: hidden by default
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
+  // Detect mobile
+  useEffect(() => {
+    const check = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) setSidebarOpen(false);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Load sessions from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("shlokaai_sessions");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         setSessions(parsed);
-        if (parsed.length > 0) {
-          setActiveSessionId(parsed[0].id);
-        }
+        if (parsed.length > 0) setActiveSessionId(parsed[0].id);
       } catch (e) {
         console.error("Failed to parse sessions", e);
       }
     }
   }, []);
 
+  // Persist sessions
   useEffect(() => {
     if (sessions.length > 0) {
       localStorage.setItem("shlokaai_sessions", JSON.stringify(sessions));
@@ -66,8 +132,10 @@ export default function Home() {
 
   const createNewSession = () => {
     setActiveSessionId(null);
-    setSidebarOpen(false);
+    if (isMobile) setSidebarOpen(false);
   };
+
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
   const generateTitle = async (query: string): Promise<string> => {
     try {
@@ -92,7 +160,7 @@ export default function Home() {
 
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...currentMessages, userMessage];
-    
+
     let sessionId = activeSessionId;
     let isNewSession = false;
 
@@ -103,16 +171,14 @@ export default function Home() {
         id: sessionId,
         title: "New Volume",
         messages: newMessages,
-        updatedAt: Date.now()
+        updatedAt: Date.now(),
       };
       setSessions(prev => [newSession, ...prev]);
       setActiveSessionId(sessionId);
     } else {
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId 
-          ? { ...s, messages: newMessages, updatedAt: Date.now() }
-          : s
-      ));
+      setSessions(prev =>
+        prev.map(s => s.id === sessionId ? { ...s, messages: newMessages, updatedAt: Date.now() } : s)
+      );
     }
 
     setInput("");
@@ -120,49 +186,36 @@ export default function Home() {
 
     if (isNewSession) {
       generateTitle(userMessage.content).then(title => {
-        setSessions(prev => prev.map(s => 
-          s.id === sessionId ? { ...s, title } : s
-        ));
+        setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, title } : s));
       });
     }
 
     try {
-      const history = newMessages
-        .map(m => ({ role: m.role, content: m.content }));
-
+      const history = newMessages.map(m => ({ role: m.role, content: m.content }));
       const res = await fetch("/api/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: userMessage.content, history }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Something went wrong");
-      }
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
 
       const botMessage: Message = {
         role: "bot",
         content: data.response,
         theme: data.theme,
-        citations: data.citations
+        citations: data.citations,
       };
 
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId 
-          ? { ...s, messages: [...s.messages, botMessage], updatedAt: Date.now() }
-          : s
-      ));
-
+      setSessions(prev =>
+        prev.map(s => s.id === sessionId ? { ...s, messages: [...s.messages, botMessage], updatedAt: Date.now() } : s)
+      );
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
-      const errorMsg: Message = { role: "bot", content: `(The scribe encountered an error: ${errorMessage})` };
-      setSessions(prev => prev.map(s => 
-        s.id === sessionId 
-          ? { ...s, messages: [...s.messages, errorMsg], updatedAt: Date.now() }
-          : s
-      ));
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred";
+      const errorMsg: Message = { role: "bot", content: `(The scribe encountered an error: ${msg})` };
+      setSessions(prev =>
+        prev.map(s => s.id === sessionId ? { ...s, messages: [...s.messages, errorMsg], updatedAt: Date.now() } : s)
+      );
     } finally {
       setLoading(false);
     }
@@ -175,10 +228,9 @@ export default function Home() {
     }
   };
 
-  // Group messages into exchanges (User -> Bot) to render them as single continuous editorial blocks
-  const exchanges: { user: Message, bot?: Message }[] = [];
-  let currentExchange: { user: Message, bot?: Message } | null = null;
-
+  // Group messages into (user, bot) exchange pairs
+  const exchanges: { user: Message; bot?: Message }[] = [];
+  let currentExchange: { user: Message; bot?: Message } | null = null;
   currentMessages.forEach(msg => {
     if (msg.role === "user") {
       if (currentExchange) exchanges.push(currentExchange);
@@ -191,57 +243,101 @@ export default function Home() {
   });
   if (currentExchange) exchanges.push(currentExchange);
 
+  // On mobile, sidebar "open" drives a class; on desktop, it drives "collapsed"
+  const sidebarClass = isMobile
+    ? `sidebar ${sidebarOpen ? "open" : ""}`
+    : `sidebar ${sidebarOpen ? "" : "collapsed"}`;
+
   return (
     <div className="app-layout">
       {/* ── Sidebar ── */}
-      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <button className="new-chat-btn" onClick={createNewSession}>
-            Inscribe New
+      <div className={sidebarClass}>
+        {/* Sidebar brand header */}
+        <div className="sidebar-brand">
+          <span className="sidebar-om">ॐ</span>
+          <span className="sidebar-title">shlokaAI</span>
+          <button
+            className="sidebar-close-btn"
+            onClick={toggleSidebar}
+            aria-label="Close sidebar"
+          >
+            <IconClose />
           </button>
         </div>
-        
+
+        <div className="sidebar-header">
+          <button className="new-chat-btn" onClick={createNewSession}>
+            + Inscribe New
+          </button>
+        </div>
+
         <div className="chat-list">
-          {sessions.length > 0 && <div className="chat-list-label">Archive</div>}
-          {sessions.sort((a, b) => b.updatedAt - a.updatedAt).map(session => (
-            <button 
-              key={session.id} 
-              className={`chat-list-item ${session.id === activeSessionId ? 'active' : ''}`}
-              onClick={() => { setActiveSessionId(session.id); setSidebarOpen(false); }}
-            >
-              {session.title === 'New Volume' && loading && session.id === activeSessionId
-                ? <span style={{opacity: 0.5}}>inscribing&nbsp;&hellip;</span>
-                : session.title
-              }
-            </button>
-          ))}
+          {sessions.length > 0 && (
+            <div className="chat-list-label">Archive</div>
+          )}
+          {sessions
+            .sort((a, b) => b.updatedAt - a.updatedAt)
+            .map(session => (
+              <button
+                key={session.id}
+                className={`chat-list-item ${session.id === activeSessionId ? "active" : ""}`}
+                onClick={() => {
+                  setActiveSessionId(session.id);
+                  if (isMobile) setSidebarOpen(false);
+                }}
+              >
+                {session.title === "New Volume" && loading && session.id === activeSessionId ? (
+                  <span style={{ opacity: 0.5 }}>inscribing&nbsp;&hellip;</span>
+                ) : (
+                  session.title
+                )}
+              </button>
+            ))}
         </div>
       </div>
-      
-      {/* Mobile Overlay */}
-      <div 
-        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
+
+      {/* Mobile overlay */}
+      <div
+        className={`sidebar-overlay ${isMobile && sidebarOpen ? "open" : ""}`}
         onClick={() => setSidebarOpen(false)}
-      ></div>
+      />
 
       {/* ── Main Area ── */}
       <main className="main-area">
-        <div className="mobile-header">
-          <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+        {/* Persistent topbar with toggle button */}
+        <div className="desktop-topbar">
+          <button
+            className="sidebar-toggle-btn"
+            onClick={toggleSidebar}
+            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+          >
+            <IconMenu />
+          </button>
+          <div className="topbar-colophon">
+            <span className="topbar-om">ॐ</span>
+            <span className="topbar-title">shlokaAI</span>
+            <span className="topbar-subtitle">Bhagavad Gita</span>
+          </div>
         </div>
 
-        {/* ── Continuous Editorial Flow ── */}
+        {/* ── Chat scroll area ── */}
         <div className="chat-container">
-          
-          {/* Empty state — visible before any conversation starts */}
+
+          {/* Empty state with decorative mandala */}
           {currentMessages.length === 0 && (
-            <div style={{ textAlign: 'center', marginTop: '12vh' }} className="editorial-flow">
-              <h1 className="logo-name" style={{fontSize: "3rem", color: "var(--cream)", letterSpacing: '0.1em'}}>shlokaAI</h1>
-              <p style={{fontStyle: 'italic', color: 'var(--gold-dim)', marginTop: '1rem', fontSize: '1.05rem'}}>Wisdom from the Bhagavad Gita</p>
-              <p style={{color: 'var(--text-muted)', marginTop: '3rem', fontSize: '0.95rem', lineHeight: '1.8'}}>Begin by sharing what weighs on your mind.<br/>The Gita has held many answers for many lives.</p>
+            <div className="empty-state editorial-flow">
+              <MandalaDecoration />
+              <h1 className="empty-title">shlokaAI</h1>
+              <p className="empty-subtitle">Wisdom from the Bhagavad Gita</p>
+              <div className="empty-ornament">❈</div>
+              <p className="empty-invitation">
+                Begin by sharing what weighs on your mind.<br />
+                The Gita has held many answers for many lives.
+              </p>
             </div>
           )}
 
+          {/* Editorial conversation */}
           {exchanges.map((exchange, idx) => (
             <div key={idx} className="exchange-block editorial-flow">
 
@@ -251,12 +347,12 @@ export default function Home() {
                 <p className="editorial-query">{exchange.user.content}</p>
               </div>
 
-              {/* Thin ornamental rule separating query from response */}
+              {/* ❈ ornamental rule */}
               {exchange.bot && (
                 <div className="query-to-response-rule">❈</div>
               )}
 
-              {/* The AI's Response — dominant manuscript body */}
+              {/* AI response — dominant manuscript body */}
               {exchange.bot && (
                 <div className="editorial-response">
                   {exchange.bot.theme && (
@@ -277,7 +373,7 @@ export default function Home() {
 
                   {exchange.bot.citations && exchange.bot.citations.length > 1 && (
                     <div className="citations-list">
-                      {exchange.bot.citations.slice(1).map((c) => (
+                      {exchange.bot.citations.slice(1).map(c => (
                         <span key={c.reference} className="citation-inline" title={c.sanskrit}>
                           {c.reference}
                         </span>
@@ -287,34 +383,38 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Generous separator between exchanges */}
+              {/* Separator between exchanges */}
               {idx < exchanges.length - 1 && (
                 <div className="exchange-separator">✧ &nbsp; ✧ &nbsp; ✧</div>
               )}
             </div>
           ))}
-          
+
+          {/* Loading yantra */}
           {loading && (
-            <div className="loading-row">
+            <div className="loading-row editorial-flow">
               <svg className="yantra-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="40" />
-                <rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" />
+                <circle cx="50" cy="50" r="40"/>
+                <rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)"/>
+                <circle cx="50" cy="50" r="10"/>
               </svg>
               <span className="loading-text">Seeking</span>
             </div>
           )}
+
           <div ref={endOfMessagesRef} />
         </div>
 
-        {/* ── Minimal Input Area ── */}
+        {/* ── Minimal manuscript input ── */}
         <div className="input-container">
+          <span className="input-prompt-label">वदतु — Speak</span>
           <form className="input-box" onSubmit={handleSubmit}>
             <input
               type="text"
               className="input-field"
-              placeholder="Inscribe your thoughts here..."
+              placeholder="Inscribe your thoughts here…"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               maxLength={500}
               disabled={loading}
@@ -325,10 +425,7 @@ export default function Home() {
               disabled={!input.trim() || loading}
               aria-label="Send message"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
+              <IconArrow />
             </button>
           </form>
         </div>
