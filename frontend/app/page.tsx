@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 
 interface Citation {
   reference: string;
@@ -48,22 +47,50 @@ const IconArrow = () => (
   </svg>
 );
 
-// ── Peacock Feather Eye Icon (square, vivid, visible at small sizes) ───────
-const PeacockFeatherIcon = ({ size = 36 }: { size?: number }) => (
-  <Image
-    src="/peacock-eye.jpg"
-    alt="Peacock feather eye"
+// ── Scripture Book Icon (golden, minimal, SVG) ────────────────────────────
+const BookIcon = ({ size = 36 }: { size?: number }) => (
+  <svg
     width={size}
     height={size}
-    style={{
-      objectFit: 'cover',
-      borderRadius: '50%',
-      display: 'block',
-      flexShrink: 0,
-      boxShadow: '0 1px 4px rgba(26, 107, 110, 0.25)',
-    }}
-  />
+    viewBox="0 0 36 36"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    aria-label="Shloka scripture"
+    style={{ display: 'block', flexShrink: 0 }}
+  >
+    {/* Open book left page */}
+    <path
+      d="M18 8 C18 8 12 6 5 8 L5 28 C12 26 18 28 18 28"
+      stroke="#c9993f"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+      fill="rgba(201,153,63,0.06)"
+    />
+    {/* Open book right page */}
+    <path
+      d="M18 8 C18 8 24 6 31 8 L31 28 C24 26 18 28 18 28"
+      stroke="#c9993f"
+      strokeWidth="1.2"
+      strokeLinejoin="round"
+      fill="rgba(201,153,63,0.06)"
+    />
+    {/* Spine */}
+    <line x1="18" y1="8" x2="18" y2="28" stroke="#c9993f" strokeWidth="1.5" strokeLinecap="round"/>
+    {/* Text lines — left page */}
+    <line x1="8"  y1="14" x2="15" y2="13.2" stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    <line x1="8"  y1="17" x2="15" y2="16.3" stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    <line x1="8"  y1="20" x2="15" y2="19.4" stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    <line x1="8"  y1="23" x2="15" y2="22.5" stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    {/* Text lines — right page */}
+    <line x1="21" y1="13.2" x2="28" y2="14"  stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    <line x1="21" y1="16.3" x2="28" y2="17"  stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    <line x1="21" y1="19.4" x2="28" y2="20"  stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    <line x1="21" y1="22.5" x2="28" y2="23"  stroke="#c9993f" strokeWidth="0.7" strokeLinecap="round" opacity="0.6"/>
+    {/* Small decorative dot on spine */}
+    <circle cx="18" cy="18" r="1.2" fill="#c9993f" opacity="0.8"/>
+  </svg>
 );
+
 
 // ── Large background feather watermark (real image) ───────────────────────
 const PeacockFeatherBg = () => (
@@ -247,7 +274,7 @@ export default function Home() {
       {/* ── Sidebar ── */}
       <div className={sidebarClass}>
         <div className="sidebar-brand">
-          <PeacockFeatherIcon size={36} />
+          <BookIcon size={28} />
           <span className="sidebar-title">shlokaAI</span>
           <button className="sidebar-close-btn" onClick={toggleSidebar} aria-label="Close sidebar">
             <IconClose />
@@ -285,7 +312,7 @@ export default function Home() {
             <IconMenu />
           </button>
           <div className="topbar-colophon">
-            <PeacockFeatherIcon size={28} />
+            <BookIcon size={22} />
             <span className="topbar-title">shlokaAI</span>
             <span className="topbar-subtitle">Bhagavad Gita</span>
           </div>
