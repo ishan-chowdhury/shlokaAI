@@ -96,7 +96,6 @@ export default function Home() {
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...currentMessages, userMessage];
     
-    // If no active session, create one
     let sessionId = activeSessionId;
     let isNewSession = false;
 
@@ -105,7 +104,7 @@ export default function Home() {
       isNewSession = true;
       const newSession: ChatSession = {
         id: sessionId,
-        title: "New Chat", // Temporary
+        title: "New Chat",
         messages: newMessages,
         updatedAt: Date.now()
       };
@@ -122,7 +121,6 @@ export default function Home() {
     setInput("");
     setLoading(true);
 
-    // If it's a new session, fire off title generation in the background
     if (isNewSession) {
       generateTitle(userMessage.content).then(title => {
         setSessions(prev => prev.map(s => 
@@ -132,7 +130,6 @@ export default function Home() {
     }
 
     try {
-      // Build history, excluding the very first default bot message
       const history = newMessages
         .filter(m => m !== DEFAULT_BOT_MESSAGE)
         .map(m => ({ role: m.role, content: m.content }));
@@ -164,7 +161,7 @@ export default function Home() {
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
-      const errorMsg: Message = { role: "bot", content: `⚠️ I'm sorry, I could not process that. (${errorMessage})` };
+      const errorMsg: Message = { role: "bot", content: `I'm sorry, I could not process that. (${errorMessage})` };
       setSessions(prev => prev.map(s => 
         s.id === sessionId 
           ? { ...s, messages: [...s.messages, errorMsg], updatedAt: Date.now() }
@@ -188,12 +185,12 @@ export default function Home() {
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <button className="new-chat-btn" onClick={createNewSession}>
-            <span style={{fontSize: "1.2rem"}}>+</span> New Chat
+            <span style={{fontSize: "1.2rem", marginRight: "0.25rem"}}>✧</span> New Dialogue
           </button>
         </div>
         
         <div className="chat-list">
-          {sessions.length > 0 && <div className="chat-list-label">Past Conversations</div>}
+          {sessions.length > 0 && <div className="chat-list-label">Past Volumes</div>}
           {sessions.sort((a, b) => b.updatedAt - a.updatedAt).map(session => (
             <button 
               key={session.id} 
@@ -236,7 +233,7 @@ export default function Home() {
                     {msg.theme && (
                       <div className="response-header">
                         <span className="response-label">Guidance</span>
-                        <span className="theme-badge">✦ {msg.theme}</span>
+                        <span className="theme-badge">✧ {msg.theme}</span>
                       </div>
                     )}
 
@@ -267,10 +264,15 @@ export default function Home() {
           
           {loading && (
             <div className="message-row bot">
-              <div className="message-bubble bot">
+              <div className="message-bubble bot" style={{background: "transparent", border: "none", boxShadow: "none"}}>
                 <div className="loading-row">
-                  <span className="loading-om">ॐ</span>
-                  <span className="loading-text">Consulting the Gita...</span>
+                  {/* SVG Yantra Animation */}
+                  <svg className="yantra-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="40" />
+                    <rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" />
+                    <circle cx="50" cy="50" r="20" className="yantra-inner" />
+                  </svg>
+                  <span className="loading-text">Seeking the Verse</span>
                 </div>
               </div>
             </div>
@@ -297,7 +299,9 @@ export default function Home() {
               disabled={!input.trim() || loading}
               aria-label="Send message"
             >
-              ✦
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
             </button>
           </form>
         </div>
