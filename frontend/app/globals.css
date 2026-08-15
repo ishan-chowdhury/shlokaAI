@@ -1,25 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm ivory / handmade-paper theme */
-  --bg-deep: #f9f5f0;
-  --bg-card: rgba(251, 248, 241, 0.95);
-  --bg-sidebar: #f2ebe1;
-  --border-subtle: rgba(168, 143, 115, 0.25);
-  --border-glow: rgba(168, 143, 115, 0.5);
+  /* Ultra-subtle ivory manuscript theme */
+  --bg-deep: #fbfaf8;
+  --bg-sidebar: #f5f4ef;
+  --border-subtle: rgba(168, 143, 115, 0.15);
+  --border-glow: rgba(168, 143, 115, 0.3);
   
-  /* Muted Saffron & Antique Gold */
-  --gold: #b36e49; /* Saffron/terracotta */
-  --gold-light: #c28d54; /* Antique gold */
-  --gold-dim: #8b5a3e;
+  /* Restrained Saffron & Gold */
+  --gold: #b07d62; 
+  --gold-light: #cfa88c; 
+  --gold-dim: #8b6852;
   
-  /* Very dark brown/charcoal for text */
-  --cream: #2b2523; 
-  --text-muted: rgba(43, 37, 35, 0.65);
+  /* Charcoal text for optimal reading */
+  --cream: #2a2726; 
+  --text-muted: rgba(42, 39, 38, 0.5);
   
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
-  --user-bubble: #f4ede4;
-  --bot-bubble: #fdfbf7;
 }
 
 * {
@@ -31,22 +28,13 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-deep);
-  /* High-quality SVG noise texture for handmade paper feel */
-  background-image: url('data:image/svg+xml,%3Csvg width="200" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.04"/%3E%3C/svg%3E');
+  /* Extremely subtle noise texture (opacity 0.01) */
+  background-image: url('data:image/svg+xml,%3Csvg width="200" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.015"/%3E%3C/svg%3E');
   color: var(--cream);
   font-family: var(--font-lora), serif;
   height: 100vh;
   overflow: hidden;
-}
-
-/* Subtle radial gradient to focus center */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, transparent 40%, rgba(139, 90, 62, 0.03) 100%);
-  pointer-events: none;
-  z-index: 0;
+  font-size: 18px; /* Slightly larger base for editorial feel */
 }
 
 /* ── Layout ── */
@@ -68,80 +56,75 @@ body::before {
   height: 100%;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 40;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.02);
 }
 
 .sidebar-header {
-  padding: 1.5rem 1.25rem;
+  padding: 2rem 1.5rem 1rem;
 }
 
 .new-chat-btn {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  text-align: left;
+  padding: 0.5rem 0;
   background: transparent;
-  border: 1px solid var(--border-glow);
-  border-radius: 2px;
-  color: var(--gold);
+  border: none;
+  border-bottom: 1px solid var(--border-glow);
+  color: var(--gold-dim);
   font-family: var(--font-cinzel), serif;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
 }
 
 .new-chat-btn:hover {
-  background: rgba(179, 110, 73, 0.05);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+  color: var(--gold);
+  border-bottom-color: var(--gold);
 }
 
 .chat-list {
   flex: 1;
   overflow-y: auto;
-  padding: 0.5rem 0.75rem;
+  padding: 1rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.75rem;
 }
 
 .chat-list-item {
   width: 100%;
   text-align: left;
-  padding: 0.75rem 1rem;
+  padding: 0;
   background: transparent;
   border: none;
-  border-radius: 2px;
-  color: var(--cream);
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-family: var(--font-lora), serif;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background 0.2s ease, padding-left 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .chat-list-item:hover {
-  background: rgba(179, 110, 73, 0.05);
+  color: var(--cream);
 }
 
 .chat-list-item.active {
-  background: rgba(179, 110, 73, 0.1);
-  font-weight: 600;
-  padding-left: 1.25rem;
-  border-left: 2px solid var(--gold);
+  color: var(--cream);
+  font-weight: 500;
+  font-style: italic;
 }
 
 .chat-list-label {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-muted);
-  padding: 1rem 1rem 0.5rem;
+  color: var(--border-glow);
+  padding: 1.5rem 0 0.5rem;
   font-family: var(--font-cinzel), serif;
 }
 
@@ -158,7 +141,7 @@ body::before {
 .mobile-header {
   display: none;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-deep);
   z-index: 20;
@@ -167,179 +150,168 @@ body::before {
 .menu-btn {
   background: transparent;
   border: none;
-  color: var(--gold);
+  color: var(--gold-dim);
   font-size: 1.5rem;
   cursor: pointer;
 }
 
-.logo-section {
-  text-align: center;
-  padding: 2rem 0 1.5rem;
-  background: linear-gradient(to bottom, var(--bg-deep) 70%, transparent);
-  width: 100%;
-  z-index: 10;
-  flex-shrink: 0;
-}
-
-.logo-name {
-  font-family: var(--font-cinzel), serif;
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--gold-dim);
-}
-
-.logo-tagline {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-family: var(--font-lora), serif;
-  font-style: italic;
-  margin-top: 0.25rem;
-}
-
-/* ── Chat Container ── */
+/* ── Editorial Chat Container ── */
 .chat-container {
   flex: 1;
   width: 100%;
-  max-width: 850px;
+  max-width: 720px; /* Optimal reading measure (approx 65-70 chars) */
   margin: 0 auto;
   overflow-y: auto;
-  padding: 1rem 2rem 3rem;
+  padding: 4rem 2rem 6rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 3rem; /* Generous spacing between exchanges */
 }
 
 .chat-container::-webkit-scrollbar { display: none; }
 .chat-container { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ── Message Bubbles (Manuscript Folios) ── */
-.message-row {
-  display: flex;
-  width: 100%;
-}
-
-.message-row.user { justify-content: flex-end; }
-.message-row.bot { justify-content: flex-start; }
-
-.message-bubble {
-  max-width: 85%;
-  padding: 1.75rem 2rem;
-  /* Sharp corners like paper pages */
-  border-radius: 2px;
-  /* Stacked paper box shadow */
-  box-shadow: 
-    0 1px 3px rgba(0,0,0,0.04), 
-    0 1px 2px rgba(0,0,0,0.02),
-    -1px -1px 0 rgba(255,255,255,0.7) inset;
-}
-
 /* Ink reveal animation for new messages */
-.message-bubble {
-  animation: inkReveal 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+.editorial-flow {
+  animation: fadeUpReveal 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-@keyframes inkReveal {
+@keyframes fadeUpReveal {
   0% { 
     opacity: 0; 
-    filter: blur(8px);
-    transform: translateY(15px) scale(0.98);
+    transform: translateY(10px);
   }
   100% { 
     opacity: 1; 
-    filter: blur(0);
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-.message-bubble.user {
-  background: var(--user-bubble);
-  border: 1px solid rgba(179, 110, 73, 0.1);
-  color: var(--cream);
-  font-size: 1.05rem;
-  line-height: 1.7;
+/* ── Editorial Blocks ── */
+.exchange-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
 }
 
-.message-bubble.bot {
-  background: var(--bot-bubble);
-  border: 1px solid var(--border-subtle);
-  border-top: 3px solid var(--gold-light);
-  /* Subtle ornamental top border effect */
-  background-image: linear-gradient(var(--bot-bubble), var(--bot-bubble)), url('data:image/svg+xml,%3Csvg width="100%25" height="100%25" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="1" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.02"/%3E%3C/svg%3E');
+/* User query — subordinate but scannable */
+.editorial-query-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.query-label {
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.editorial-query {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--gold-dim);
+  font-style: italic;
+  margin: 0;
+  max-width: 90%;
+}
+
+.editorial-response {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--cream);
+  text-align: left;
+}
+
+.exchange-separator {
+  text-align: center;
+  color: var(--border-glow);
+  font-size: 0.85rem;
+  /* generous vertical breathing room */
+  margin: 2.5rem 0 1rem;
+  letter-spacing: 0.35em;
+}
+
+/* The thin rule between a query and its response */
+.query-to-response-rule {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+  color: var(--border-subtle);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+}
+
+.query-to-response-rule::before,
+.query-to-response-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
 }
 
 .response-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-subtle);
-  position: relative;
-}
-
-.response-header::after {
-  content: "✧";
-  position: absolute;
-  bottom: -9px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: var(--border-glow);
-  font-size: 0.8rem;
-  background: var(--bot-bubble);
-  padding: 0 0.5rem;
-}
-
-.response-label {
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--gold-dim);
-  font-family: var(--font-cinzel), serif;
-  font-weight: 600;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .theme-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: transparent;
-  border: 1px solid rgba(179, 110, 73, 0.2);
-  padding: 0.2rem 0.75rem;
+  font-family: var(--font-cinzel), serif;
   font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   color: var(--gold);
-  font-style: italic;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.25rem;
 }
 
 .sanskrit-section {
-  padding: 1.5rem 0;
+  padding: 2.5rem 0;
   text-align: center;
-  border-bottom: 1px dashed var(--border-subtle);
-  margin-bottom: 1.5rem;
+  margin: 2rem 0;
+  position: relative;
 }
+
+/* Ornamental lines top and bottom of Sanskrit */
+.sanskrit-section::before,
+.sanskrit-section::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 1px;
+  background: var(--border-glow);
+}
+.sanskrit-section::before { top: 0; }
+.sanskrit-section::after { bottom: 0; }
 
 .sanskrit-verse {
   font-family: var(--font-devanagari);
-  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-size: clamp(1.4rem, 4vw, 1.75rem);
   font-weight: 400;
-  line-height: 1.8;
-  color: var(--gold-dim);
-  margin-bottom: 0.75rem;
-  text-shadow: 0 1px 1px rgba(255,255,255,0.8);
+  line-height: 1.9;
+  color: var(--cream);
+  margin-bottom: 1rem;
 }
 
 .transliteration {
   font-style: italic;
-  font-size: 0.9rem;
-  color: var(--gold);
-  line-height: 1.7;
+  font-size: 0.95rem;
+  color: var(--gold-dim);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
 }
 
 .verse-ref {
   display: inline-block;
-  margin-top: 1rem;
   font-family: var(--font-cinzel), serif;
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -348,36 +320,34 @@ body::before {
 
 .advice-text {
   font-size: 1.05rem;
-  line-height: 1.85;
+  line-height: 1.9;
   color: var(--cream);
   white-space: pre-wrap;
+  margin-bottom: 1.5rem;
 }
 
 .citations-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-subtle);
+  gap: 1rem;
+  margin-top: 2.5rem;
+  justify-content: center;
 }
 
-.citation-pill {
-  background: transparent;
-  border: 1px solid rgba(179, 110, 73, 0.3);
-  padding: 0.25rem 0.75rem;
+.citation-inline {
   font-family: var(--font-cinzel), serif;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--gold-dim);
+  letter-spacing: 0.05em;
 }
 
-/* ── Input Box ── */
+/* ── Minimal Manuscript Input ── */
 .input-container {
   width: 100%;
-  max-width: 850px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 1.5rem 2rem 2.5rem;
-  background: linear-gradient(to top, var(--bg-deep) 80%, transparent);
+  padding: 2rem 2rem 3rem;
+  background: linear-gradient(to top, var(--bg-deep) 60%, transparent);
   position: relative;
   z-index: 10;
 }
@@ -385,20 +355,13 @@ body::before {
 .input-box {
   display: flex;
   align-items: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: 2px;
-  padding: 0.75rem 0.75rem 0.75rem 1.5rem;
-  box-shadow: 
-    0 4px 15px rgba(0, 0, 0, 0.02),
-    0 1px 2px rgba(0, 0, 0, 0.01);
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.5rem 0;
+  transition: border-color 0.4s ease;
 }
 
 .input-box:focus-within {
-  border-color: var(--gold);
-  box-shadow: 0 4px 25px rgba(179, 110, 73, 0.06);
-  background: #ffffff;
+  border-color: var(--gold-dim);
 }
 
 .input-field {
@@ -407,8 +370,9 @@ body::before {
   background: transparent;
   outline: none;
   font-family: var(--font-lora), serif;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   color: var(--cream);
+  font-style: italic;
 }
 
 .input-field::placeholder { 
@@ -420,62 +384,54 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  background: var(--gold-dim);
-  color: #fff;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  color: var(--gold-dim);
   border: none;
-  border-radius: 2px;
   cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .submit-btn:hover:not(:disabled) { 
-  background: var(--gold);
-  transform: scale(1.03); 
+  color: var(--gold);
+  transform: translateX(3px); 
 }
 .submit-btn:disabled { 
-  opacity: 0.4; 
+  opacity: 0.3; 
   cursor: not-allowed; 
 }
 
-/* ── Loading (Yantra Line Art) ── */
+/* ── Loading ── */
 .loading-row {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  padding: 1.5rem;
+  padding: 3rem 0;
 }
 
 .yantra-icon {
-  width: 32px;
-  height: 32px;
-  stroke: var(--gold);
-  stroke-width: 1.5;
+  width: 24px;
+  height: 24px;
+  stroke: var(--border-glow);
+  stroke-width: 1;
   fill: none;
-  animation: slowSpin 12s linear infinite;
-}
-
-.yantra-inner {
-  animation: pulse-yantra 2s ease-in-out infinite alternate;
-}
-
-@keyframes slowSpin {
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes pulse-yantra {
-  0% { stroke-width: 1; opacity: 0.6; }
-  100% { stroke-width: 2; opacity: 1; }
+  animation: slowSpin 15s linear infinite;
 }
 
 .loading-text {
   font-family: var(--font-cinzel), serif;
-  font-size: 0.8rem;
-  color: var(--gold-dim);
-  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  animation: pulse-opacity 2s infinite alternate;
+}
+
+@keyframes pulse-opacity {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 /* ── Mobile Overlay ── */
@@ -483,8 +439,7 @@ body::before {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(43, 37, 35, 0.4);
-  backdrop-filter: blur(2px);
+  background: rgba(251, 250, 248, 0.9);
   z-index: 30;
   animation: fadeInOverlay 0.3s ease forwards;
 }
@@ -510,17 +465,13 @@ body::before {
   .sidebar-overlay.open {
     display: block;
   }
-  .logo-section {
-    padding: 1rem 0;
+  body {
+    font-size: 16px;
   }
   .chat-container {
-    padding: 1rem 1rem 2rem;
-  }
-  .message-bubble {
-    max-width: 95%;
-    padding: 1.25rem;
+    padding: 2rem 1.5rem 4rem;
   }
   .input-container {
-    padding: 1rem 1rem 1.5rem;
+    padding: 1rem 1.5rem 2rem;
   }
 }

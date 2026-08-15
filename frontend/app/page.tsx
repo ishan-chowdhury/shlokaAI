@@ -22,10 +22,9 @@ interface ChatSession {
   updatedAt: number;
 }
 
-const DEFAULT_BOT_MESSAGE: Message = {
-  role: "bot",
-  content: "Namaste. I am shlokaAI, a guide rooted in the wisdom of the Bhagavad Gita. What weighs on your heart today?",
-};
+// Remove the default bot message. We want a blank page until the user speaks,
+// to emphasize the "quiet, spacious" feel.
+const DEFAULT_MESSAGES: Message[] = [];
 
 export default function Home() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -37,7 +36,6 @@ export default function Home() {
   
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
-  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("shlokaai_sessions");
     if (saved) {
@@ -53,7 +51,6 @@ export default function Home() {
     }
   }, []);
 
-  // Save to localStorage when sessions change
   useEffect(() => {
     if (sessions.length > 0) {
       localStorage.setItem("shlokaai_sessions", JSON.stringify(sessions));
@@ -61,7 +58,7 @@ export default function Home() {
   }, [sessions]);
 
   const activeSession = sessions.find(s => s.id === activeSessionId);
-  const currentMessages = activeSession ? activeSession.messages : [DEFAULT_BOT_MESSAGE];
+  const currentMessages = activeSession ? activeSession.messages : DEFAULT_MESSAGES;
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,7 +83,7 @@ export default function Home() {
     } catch (e) {
       console.error(e);
     }
-    return "New Conversation";
+    return "New Volume";
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -104,7 +101,7 @@ export default function Home() {
       isNewSession = true;
       const newSession: ChatSession = {
         id: sessionId,
-        title: "New Chat",
+        title: "New Volume",
         messages: newMessages,
         updatedAt: Date.now()
       };
@@ -131,7 +128,6 @@ export default function Home() {
 
     try {
       const history = newMessages
-        .filter(m => m !== DEFAULT_BOT_MESSAGE)
         .map(m => ({ role: m.role, content: m.content }));
 
       const res = await fetch("/api/ask", {
@@ -161,7 +157,7 @@ export default function Home() {
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
-      const errorMsg: Message = { role: "bot", content: `I'm sorry, I could not process that. (${errorMessage})` };
+      const errorMsg: Message = { role: "bot", content: `(The scribe encountered an error: ${errorMessage})` };
       setSessions(prev => prev.map(s => 
         s.id === sessionId 
           ? { ...s, messages: [...s.messages, errorMsg], updatedAt: Date.now() }
@@ -179,18 +175,34 @@ export default function Home() {
     }
   };
 
+  // Group messages into exchanges (User -> Bot) to render them as single continuous editorial blocks
+  const exchanges: { user: Message, bot?: Message }[] = [];
+  let currentExchange: { user: Message, bot?: Message } | null = null;
+
+  currentMessages.forEach(msg => {
+    if (msg.role === "user") {
+      if (currentExchange) exchanges.push(currentExchange);
+      currentExchange = { user: msg };
+    } else if (msg.role === "bot" && currentExchange) {
+      currentExchange.bot = msg;
+      exchanges.push(currentExchange);
+      currentExchange = null;
+    }
+  });
+  if (currentExchange) exchanges.push(currentExchange);
+
   return (
     <div className="app-layout">
       {/* ── Sidebar ── */}
       <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <button className="new-chat-btn" onClick={createNewSession}>
-            <span style={{fontSize: "1.2rem", marginRight: "0.25rem"}}>✧</span> New Dialogue
+            Inscribe New
           </button>
         </div>
         
         <div className="chat-list">
-          {sessions.length > 0 && <div className="chat-list-label">Past Volumes</div>}
+          {sessions.length > 0 && <div className="chat-list-label">Archive</div>}
           {sessions.sort((a, b) => b.updatedAt - a.updatedAt).map(session => (
             <button 
               key={session.id} 
@@ -213,80 +225,90 @@ export default function Home() {
       <main className="main-area">
         <div className="mobile-header">
           <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
-          <h1 className="logo-name" style={{fontSize: "1.2rem", marginLeft: "1rem"}}>shlokaAI</h1>
         </div>
 
-        <header className="logo-section">
-          <h1 className="logo-name">shlokaAI</h1>
-          <p className="logo-tagline">Wisdom from the Bhagavad Gita</p>
-        </header>
-
-        {/* ── Chat Messages ── */}
+        {/* ── Continuous Editorial Flow ── */}
         <div className="chat-container">
-          {currentMessages.map((msg, idx) => (
-            <div key={idx} className={`message-row ${msg.role}`}>
-              <div className={`message-bubble ${msg.role}`}>
-                {msg.role === "user" ? (
-                  <p>{msg.content}</p>
-                ) : (
-                  <>
-                    {msg.theme && (
-                      <div className="response-header">
-                        <span className="response-label">Guidance</span>
-                        <span className="theme-badge">✧ {msg.theme}</span>
-                      </div>
-                    )}
+          
+          {/* Logo sits at the top of the manuscript page */}
+          {currentMessages.length === 0 && (
+            <div style={{ textAlign: 'center', marginTop: '10vh' }} className="editorial-flow">
+               <h1 className="logo-name" style={{fontSize: "3rem", color: "var(--cream)"}}>shlokaAI</h1>
+               <p style={{fontStyle: 'italic', color: 'var(--gold-dim)', marginTop: '1rem'}}>Wisdom from the Bhagavad Gita</p>
+            </div>
+          )}
 
-                    {msg.citations && msg.citations.length > 0 && (
-                      <div className="sanskrit-section">
-                        <p className="sanskrit-verse">{msg.citations[0].sanskrit}</p>
-                        <p className="transliteration">{msg.citations[0].transliteration}</p>
-                        <span className="verse-ref">{msg.citations[0].reference}</span>
-                      </div>
-                    )}
+          {exchanges.map((exchange, idx) => (
+            <div key={idx} className="exchange-block editorial-flow">
 
-                    <div className="advice-text">{msg.content}</div>
-
-                    {msg.citations && msg.citations.length > 1 && (
-                      <div className="citations-list">
-                        {msg.citations.slice(1).map((c) => (
-                          <span key={c.reference} className="citation-pill" title={c.sanskrit}>
-                            {c.reference}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
+              {/* User query — subordinate label + muted italic */}
+              <div className="editorial-query-wrap">
+                <span className="query-label">प्रश्न</span>
+                <p className="editorial-query">{exchange.user.content}</p>
               </div>
+
+              {/* Thin ornamental rule separating query from response */}
+              {exchange.bot && (
+                <div className="query-to-response-rule">❈</div>
+              )}
+
+              {/* The AI's Response — dominant manuscript body */}
+              {exchange.bot && (
+                <div className="editorial-response">
+                  {exchange.bot.theme && (
+                    <div className="response-header">
+                      <span className="theme-badge">{exchange.bot.theme}</span>
+                    </div>
+                  )}
+
+                  {exchange.bot.citations && exchange.bot.citations.length > 0 && (
+                    <div className="sanskrit-section">
+                      <p className="sanskrit-verse">{exchange.bot.citations[0].sanskrit}</p>
+                      <p className="transliteration">{exchange.bot.citations[0].transliteration}</p>
+                      <span className="verse-ref">{exchange.bot.citations[0].reference}</span>
+                    </div>
+                  )}
+
+                  <div className="advice-text">{exchange.bot.content}</div>
+
+                  {exchange.bot.citations && exchange.bot.citations.length > 1 && (
+                    <div className="citations-list">
+                      {exchange.bot.citations.slice(1).map((c) => (
+                        <span key={c.reference} className="citation-inline" title={c.sanskrit}>
+                          {c.reference}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Generous separator between exchanges */}
+              {idx < exchanges.length - 1 && (
+                <div className="exchange-separator">✧ &nbsp; ✧ &nbsp; ✧</div>
+              )}
             </div>
           ))}
           
           {loading && (
-            <div className="message-row bot">
-              <div className="message-bubble bot" style={{background: "transparent", border: "none", boxShadow: "none"}}>
-                <div className="loading-row">
-                  {/* SVG Yantra Animation */}
-                  <svg className="yantra-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="40" />
-                    <rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" />
-                    <circle cx="50" cy="50" r="20" className="yantra-inner" />
-                  </svg>
-                  <span className="loading-text">Seeking the Verse</span>
-                </div>
-              </div>
+            <div className="loading-row">
+              <svg className="yantra-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" />
+                <rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" />
+              </svg>
+              <span className="loading-text">Seeking</span>
             </div>
           )}
           <div ref={endOfMessagesRef} />
         </div>
 
-        {/* ── Input Box ── */}
+        {/* ── Minimal Input Area ── */}
         <div className="input-container">
           <form className="input-box" onSubmit={handleSubmit}>
             <input
               type="text"
               className="input-field"
-              placeholder="Share what weighs on your heart..."
+              placeholder="Inscribe your thoughts here..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -299,8 +321,9 @@ export default function Home() {
               disabled={!input.trim() || loading}
               aria-label="Send message"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
             </button>
           </form>
