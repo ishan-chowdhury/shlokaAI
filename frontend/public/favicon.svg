@@ -1,4 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" fill="#fbfaf8"/>
-  <text x="50" y="75" font-family="Noto Sans Devanagari, serif" font-size="72" text-anchor="middle" fill="#8b6852">ॐ</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 220">
+  <defs>
+    <radialGradient id="eye-outer" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a3a6b"/>
+      <stop offset="40%" stop-color="#1a6b6e"/>
+      <stop offset="75%" stop-color="#2a9d6a"/>
+      <stop offset="100%" stop-color="#c9993f" stop-opacity="0.8"/>
+    </radialGradient>
+  </defs>
+  <path d="M50 220 Q50 160 50 60" stroke="#1a6b6e" stroke-width="1.2" fill="none"/>
+  <path d="M50 90 Q35 75 18 52" stroke="#1a6b6e" stroke-width="0.7" fill="none" opacity="0.85"/>
+  <path d="M50 90 Q65 75 82 52" stroke="#264694" stroke-width="0.7" fill="none" opacity="0.85"/>
+  <path d="M50 100 Q30 82 10 68" stroke="#1a6b6e" stroke-width="0.7" fill="none" opacity="0.85"/>
+  <path d="M50 100 Q70 82 90 68" stroke="#264694" stroke-width="0.7" fill="none" opacity="0.85"/>
+  <path d="M50 110 Q28 90 8 90" stroke="#2a9d6a" stroke-width="0.6" fill="none" opacity="0.7"/>
+  <path d="M50 110 Q72 90 92 90" stroke="#264694" stroke-width="0.6" fill="none" opacity="0.7"/>
+  <path d="M50 130 Q32 132 12 130" stroke="#c9993f" stroke-width="0.5" fill="none" opacity="0.5"/>
+  <path d="M50 130 Q68 132 88 130" stroke="#c9993f" stroke-width="0.5" fill="none" opacity="0.5"/>
+  <ellipse cx="50" cy="75" rx="26" ry="22" fill="url(#eye-outer)" opacity="0.25"/>
+  <ellipse cx="50" cy="75" rx="20" ry="16" fill="none" stroke="#2a9d6a" stroke-width="1.5" opacity="0.8"/>
+  <ellipse cx="50" cy="75" rx="15" ry="12" fill="none" stroke="#c9993f" stroke-width="1.2" opacity="0.7"/>
+  <ellipse cx="50" cy="75" rx="11" ry="8.5" fill="#1a6b9d" opacity="0.7"/>
+  <ellipse cx="50" cy="75" rx="6" ry="5" fill="#0d2240" opacity="0.9"/>
+  <ellipse cx="48" cy="73" rx="2" ry="1.5" fill="white" opacity="0.4"/>
 </svg>
