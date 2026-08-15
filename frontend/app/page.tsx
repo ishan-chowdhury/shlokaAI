@@ -55,7 +55,13 @@ const PeacockFeatherIcon = ({ size = 32 }: { size?: number }) => (
     alt="Peacock feather"
     width={size}
     height={Math.round(size * 2.2)}
-    style={{ objectFit: 'contain' }}
+    style={{
+      objectFit: 'contain',
+      // Removes the white JPEG background on the ivory sidebar/topbar
+      mixBlendMode: 'multiply',
+      display: 'block',
+      flexShrink: 0,
+    }}
   />
 );
 
@@ -241,7 +247,7 @@ export default function Home() {
       {/* ── Sidebar ── */}
       <div className={sidebarClass}>
         <div className="sidebar-brand">
-          <PeacockFeatherIcon size={20} />
+          <PeacockFeatherIcon size={36} />
           <span className="sidebar-title">shlokaAI</span>
           <button className="sidebar-close-btn" onClick={toggleSidebar} aria-label="Close sidebar">
             <IconClose />
@@ -279,7 +285,7 @@ export default function Home() {
             <IconMenu />
           </button>
           <div className="topbar-colophon">
-            <PeacockFeatherIcon size={14} />
+            <PeacockFeatherIcon size={28} />
             <span className="topbar-title">shlokaAI</span>
             <span className="topbar-subtitle">Bhagavad Gita</span>
           </div>
