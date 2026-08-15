@@ -45,15 +45,14 @@ html, body {
 /* ── Background feather watermark ── */
 .feather-bg {
   position: fixed;
-  /* Right side, centered vertically */
-  right: -4%;
+  right: -3%;
   top: 50%;
   transform: translateY(-50%);
-  width: clamp(280px, 35vw, 520px);
+  width: clamp(300px, 38vw, 560px);
   height: auto;
   pointer-events: none;
   z-index: 0;
-  opacity: 1; /* individual paths control their own opacity */
+  /* mix-blend-mode is set inline on the img */
 }
 
 /* ── Sidebar ── */
