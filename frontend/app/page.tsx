@@ -48,19 +48,19 @@ const IconArrow = () => (
   </svg>
 );
 
-// ── Peacock Feather Icon (real image, small) ─────────────────────────────
-const PeacockFeatherIcon = ({ size = 32 }: { size?: number }) => (
+// ── Peacock Feather Eye Icon (square, vivid, visible at small sizes) ───────
+const PeacockFeatherIcon = ({ size = 36 }: { size?: number }) => (
   <Image
-    src="/peacock-icon.jpg"
-    alt="Peacock feather"
+    src="/peacock-eye.jpg"
+    alt="Peacock feather eye"
     width={size}
-    height={Math.round(size * 2.2)}
+    height={size}
     style={{
-      objectFit: 'contain',
-      // Removes the white JPEG background on the ivory sidebar/topbar
-      mixBlendMode: 'multiply',
+      objectFit: 'cover',
+      borderRadius: '50%',
       display: 'block',
       flexShrink: 0,
+      boxShadow: '0 1px 4px rgba(26, 107, 110, 0.25)',
     }}
   />
 );
