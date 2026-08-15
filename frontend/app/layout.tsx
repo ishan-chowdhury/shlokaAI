@@ -19,6 +19,14 @@ export const metadata: Metadata = {
   title: "shlokaAI — Wisdom from the Bhagavad Gita",
   description:
     "Share what weighs on your heart. shlokaAI finds guidance from the Bhagavad Gita, grounded in Sanskrit and scholarly translations.",
+  icons: {
+    icon: "/favicon.svg",
+  },
+  openGraph: {
+    title: "shlokaAI",
+    description: "Guidance from the Bhagavad Gita for modern life.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

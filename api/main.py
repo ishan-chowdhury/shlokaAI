@@ -5,6 +5,7 @@ from transformers import pipeline as hf_pipeline
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -13,6 +14,16 @@ load_dotenv()
 
 # ── FastAPI app ───────────────────────────────────────────────────────────────
 app = FastAPI(title="shlokaAI", description="Bhagavad Gita RAG Advisor")
+
+# Allow requests from any origin (the deployed Vercel frontend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Restrict to your Vercel URL in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class Message(BaseModel):
     role: str

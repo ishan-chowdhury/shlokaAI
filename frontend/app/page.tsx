@@ -209,7 +209,10 @@ export default function Home() {
               className={`chat-list-item ${session.id === activeSessionId ? 'active' : ''}`}
               onClick={() => { setActiveSessionId(session.id); setSidebarOpen(false); }}
             >
-              {session.title}
+              {session.title === 'New Volume' && loading && session.id === activeSessionId
+                ? <span style={{opacity: 0.5}}>inscribing&nbsp;&hellip;</span>
+                : session.title
+              }
             </button>
           ))}
         </div>
@@ -230,11 +233,12 @@ export default function Home() {
         {/* ── Continuous Editorial Flow ── */}
         <div className="chat-container">
           
-          {/* Logo sits at the top of the manuscript page */}
+          {/* Empty state — visible before any conversation starts */}
           {currentMessages.length === 0 && (
-            <div style={{ textAlign: 'center', marginTop: '10vh' }} className="editorial-flow">
-               <h1 className="logo-name" style={{fontSize: "3rem", color: "var(--cream)"}}>shlokaAI</h1>
-               <p style={{fontStyle: 'italic', color: 'var(--gold-dim)', marginTop: '1rem'}}>Wisdom from the Bhagavad Gita</p>
+            <div style={{ textAlign: 'center', marginTop: '12vh' }} className="editorial-flow">
+              <h1 className="logo-name" style={{fontSize: "3rem", color: "var(--cream)", letterSpacing: '0.1em'}}>shlokaAI</h1>
+              <p style={{fontStyle: 'italic', color: 'var(--gold-dim)', marginTop: '1rem', fontSize: '1.05rem'}}>Wisdom from the Bhagavad Gita</p>
+              <p style={{color: 'var(--text-muted)', marginTop: '3rem', fontSize: '0.95rem', lineHeight: '1.8'}}>Begin by sharing what weighs on your mind.<br/>The Gita has held many answers for many lives.</p>
             </div>
           )}
 

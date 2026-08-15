@@ -11,7 +11,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const backendRes = await fetch("http://127.0.0.1:8000/generate-title", {
+    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:8000";
+    const backendRes = await fetch(`${backendUrl}/generate-title`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),
