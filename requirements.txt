@@ -1,0 +1,13 @@
+pandas
+indic-transliteration
+cltk
+pytesseract
+rapidfuzz
+sentence-transformers
+chromadb
+faiss-cpu
+transformers
+langchain
+fastapi
+uvicorn
+pymongo
