@@ -95,13 +95,13 @@ const BookIcon = ({ size = 36 }: { size?: number }) => (
 // ── Large background feather watermark (real image) ───────────────────────
 const PeacockFeatherBg = () => (
   <div className="feather-bg" aria-hidden="true">
-    <Image
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img
       src="/peacock-bg.jpg"
       alt=""
       width={520}
       height={780}
       style={{ width: '100%', height: 'auto', opacity: 0.55, mixBlendMode: 'multiply' }}
-      priority
     />
   </div>
 );
