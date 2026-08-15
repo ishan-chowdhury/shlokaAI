@@ -6,6 +6,7 @@ from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import List, Optional
 
 # ── Load environment variables ────────────────────────────────────────────────
 load_dotenv()
@@ -13,8 +14,13 @@ load_dotenv()
 # ── FastAPI app ───────────────────────────────────────────────────────────────
 app = FastAPI(title="shlokaAI", description="Bhagavad Gita RAG Advisor")
 
+class Message(BaseModel):
+    role: str
+    content: str
+
 class QueryRequest(BaseModel):
     query: str
+    history: Optional[List[Message]] = []
 
 # ── LLM setup ─────────────────────────────────────────────────────────────────
 llm = ChatGroq(
@@ -53,17 +59,24 @@ THEMES = [
 
 # ── Prompt template ───────────────────────────────────────────────────────────
 PROMPT_TEMPLATE = """
-You are shlokaAI, a compassionate and wise guide rooted in the Bhagavad Gita.
+You are shlokaAI, a compassionate, warm, and wise spiritual guide rooted in the Bhagavad Gita.
+You speak like a gentle therapist—understanding, patient, and deeply empathetic. Your goal is to explain complicated spiritual and philosophical concepts in a very simple, easy-to-understand manner, avoiding robotic or overly academic language.
 
-A person has shared this with you:
+A person has shared their feelings with you:
 "{user_query}"
 
 The detected life theme is: {theme}
 
-Using ONLY the following verses from the Bhagavad Gita, provide grounded,
-compassionate advice. Always cite the verse (e.g., BG 2.47) for every point.
-Do NOT invent scripture or add verses not provided below.
-If none of the verses are relevant, say so honestly.
+Using ONLY the following verses from the Bhagavad Gita, provide grounded advice. 
+- Speak directly to the person with warmth.
+- Explain the verses simply and practically, as if you are a wise friend holding their hand.
+- Always cite the verse (e.g., BG 2.47) for every point.
+- Do NOT invent scripture or add verses not provided below.
+- Take into account the conversation history below to provide a continuous, contextual response.
+
+--- CONVERSATION HISTORY ---
+{history}
+----------------------------
 
 --- RETRIEVED VERSES ---
 {retrieved_verses}
@@ -73,7 +86,7 @@ Your response:
 """
 
 # ── Core pipeline logic ───────────────────────────────────────────────────────
-def run_rag_pipeline(user_query: str) -> dict:
+def run_rag_pipeline(user_query: str, history: List[Message]) -> dict:
     # 1. Classify the query into a life theme
     theme_result = classifier(user_query, candidate_labels=THEMES)
     top_theme = theme_result["labels"][0]
@@ -95,10 +108,20 @@ def run_rag_pipeline(user_query: str) -> dict:
             "transliteration": meta["transliteration"]
         })
 
+    # Format history
+    history_text = ""
+    if history:
+        for msg in history[-4:]: # Only take last 4 messages for context window management
+            role_name = "User" if msg.role == "user" else "shlokaAI"
+            history_text += f"{role_name}: {msg.content}\n"
+    if not history_text:
+        history_text = "No prior history."
+
     # 4. Build the prompt and call the LLM
     prompt = PROMPT_TEMPLATE.format(
         user_query=user_query,
         theme=top_theme,
+        history=history_text,
         retrieved_verses=verse_context
     )
 
@@ -116,8 +139,8 @@ def run_rag_pipeline(user_query: str) -> dict:
 def ask_shloka_ai(request: QueryRequest):
     if not request.query.strip():
         raise HTTPException(status_code=400, detail="Query cannot be empty")
-    return run_rag_pipeline(request.query)
+    return run_rag_pipeline(request.query, request.history or [])
 
 @app.get("/")
 def root():
-    return {"message": "shlokaAI is running. POST to /ask with {'query': '...'}."}
+    return {"message": "shlokaAI is running. POST to /ask with {'query': '...', 'history': []}."}
