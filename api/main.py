@@ -22,6 +22,9 @@ class QueryRequest(BaseModel):
     query: str
     history: Optional[List[Message]] = []
 
+class TitleRequest(BaseModel):
+    query: str
+
 # ── LLM setup ─────────────────────────────────────────────────────────────────
 llm = ChatGroq(
     model="llama-3.1-8b-instant",
@@ -144,3 +147,13 @@ def ask_shloka_ai(request: QueryRequest):
 @app.get("/")
 def root():
     return {"message": "shlokaAI is running. POST to /ask with {'query': '...', 'history': []}."}
+
+@app.post("/generate-title")
+def generate_title(request: TitleRequest):
+    if not request.query.strip():
+        return {"title": "New Chat"}
+    
+    prompt = f"Generate a short, 3-4 word spiritual title for a conversation that starts with this message. Only output the title, nothing else: '{request.query}'"
+    response = llm.invoke(prompt)
+    title = response.content.strip().replace('"', '')
+    return {"title": title}

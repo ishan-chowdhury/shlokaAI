@@ -4,13 +4,13 @@
   /* Lighter parchment/manuscript theme */
   --bg-deep: #fdfaf2;
   --bg-card: rgba(250, 246, 237, 0.85);
-  --bg-card-hover: rgba(245, 239, 227, 0.95);
+  --bg-sidebar: #f5eedf;
   --border-subtle: rgba(212, 163, 115, 0.3);
   --border-glow: rgba(212, 163, 115, 0.6);
-  --gold: #b05a1e; /* deeper terracotta/saffron for contrast */
+  --gold: #b05a1e; 
   --gold-light: #c87635;
   --gold-dim: #8b4513;
-  --cream: #2c241b; /* deep brown/charcoal for text */
+  --cream: #2c241b; 
   --text-muted: rgba(44, 36, 27, 0.6);
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
   --user-bubble: #f2e8d9;
@@ -29,7 +29,8 @@ body {
   background-image: url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100" height="100" filter="url(%23noise)" opacity="0.04"/%3E%3C/svg%3E');
   color: var(--cream);
   font-family: var(--font-inter), sans-serif;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Mandala background - subtle */
@@ -59,24 +60,127 @@ body::before {
   z-index: 0;
 }
 
-.page-wrapper {
+/* ── Layout ── */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
   position: relative;
   z-index: 1;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
-/* ── Logo ── */
+/* ── Sidebar ── */
+.sidebar {
+  width: 260px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.3s ease;
+  z-index: 40;
+}
+
+.sidebar-header {
+  padding: 1rem;
+}
+
+.new-chat-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border-glow);
+  border-radius: 0.5rem;
+  color: var(--gold);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.new-chat-btn:hover {
+  background: rgba(212, 163, 115, 0.1);
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.chat-list-item {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--cream);
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.2s ease;
+}
+
+.chat-list-item:hover {
+  background: rgba(212, 163, 115, 0.1);
+}
+
+.chat-list-item.active {
+  background: rgba(212, 163, 115, 0.2);
+  font-weight: 500;
+}
+
+.chat-list-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Main Area ── */
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  background: transparent;
+}
+
+.mobile-header {
+  display: none;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-deep);
+  z-index: 20;
+}
+
+.menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
 .logo-section {
   text-align: center;
   padding: 1.5rem 0;
   background: linear-gradient(to bottom, var(--bg-deep) 60%, transparent);
   width: 100%;
   z-index: 10;
+  flex-shrink: 0;
 }
 
 .logo-name {
@@ -101,6 +205,8 @@ body::before {
 .chat-container {
   flex: 1;
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   overflow-y: auto;
   padding: 1rem 1.5rem 2rem;
   display: flex;
@@ -108,14 +214,8 @@ body::before {
   gap: 1.5rem;
 }
 
-/* Hide scrollbar */
-.chat-container::-webkit-scrollbar {
-  display: none;
-}
-.chat-container {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.chat-container::-webkit-scrollbar { display: none; }
+.chat-container { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ── Message Bubbles ── */
 .message-row {
@@ -123,13 +223,8 @@ body::before {
   width: 100%;
 }
 
-.message-row.user {
-  justify-content: flex-end;
-}
-
-.message-row.bot {
-  justify-content: flex-start;
-}
+.message-row.user { justify-content: flex-end; }
+.message-row.bot { justify-content: flex-start; }
 
 .message-bubble {
   max-width: 85%;
@@ -160,7 +255,6 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Bot Specific Elements ── */
 .response-header {
   display: flex;
   align-items: center;
@@ -254,6 +348,8 @@ body::before {
 /* ── Input Box ── */
 .input-container {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   padding: 1rem 1.5rem 2rem;
   background: linear-gradient(to top, var(--bg-deep) 70%, transparent);
   position: relative;
@@ -287,9 +383,7 @@ body::before {
   color: var(--cream);
 }
 
-.input-field::placeholder {
-  color: var(--text-muted);
-}
+.input-field::placeholder { color: var(--text-muted); }
 
 .submit-btn {
   display: flex;
@@ -305,14 +399,8 @@ body::before {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.submit-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-}
-
-.submit-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.submit-btn:hover:not(:disabled) { transform: scale(1.05); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── Loading ── */
 .loading-row {
@@ -338,4 +426,34 @@ body::before {
   font-size: 0.85rem;
   color: var(--gold-dim);
   letter-spacing: 0.05em;
+}
+
+/* ── Mobile Overlay ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 30;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .mobile-header {
+    display: flex;
+  }
+  .sidebar-overlay.open {
+    display: block;
+  }
+  .logo-section {
+    padding: 0.5rem 0;
+  }
 }
